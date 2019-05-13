@@ -15,12 +15,17 @@ func main() {
 	isHex := flag.Bool("x", false, "input is hexadecimal")
 	flag.Parse()
 
+	info, err := os.Stdin.Stat()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	var b []byte
 	var err error
-	switch len(os.Args) {
-	case 1:
+	if info.Size() > 0 {
 		b, err = parseReader(os.Stdin, *isHex)
-	default:
+	} else {
 		b, err = parseString(os.Args[len(os.Args)-1], *isHex)
 	}
 
