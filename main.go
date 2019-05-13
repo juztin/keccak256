@@ -49,7 +49,6 @@ func parseReader(r io.Reader) (string, error) {
 
 	hash := sha3.NewLegacyKeccak256()
 	reader := bufio.NewReader(r)
-	reader.WriteTo(os.Stdout)
 	reader.WriteTo(hash)
 	buf := hash.Sum(nil)
 	return hex.EncodeToString(buf), nil
