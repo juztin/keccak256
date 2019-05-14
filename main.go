@@ -22,7 +22,6 @@ func main() {
 	}
 
 	var b []byte
-	var err error
 	if info.Size() > 0 {
 		b, err = parseReader(os.Stdin, *isHex)
 	} else {
