@@ -21,18 +21,24 @@ func main() {
 		os.Exit(1)
 	}
 
+	args := flag.Args()
+	if len(args) > 0 && info.Size() > 0 {
+		fmt.Println("Accepts either piped data or file arg, but not both")
+		os.Exit(1)
+	}
+
 	var b []byte
-	if info.Size() > 0 {
-		b, err = parseReader(os.Stdin, *isHex)
+	if len(args) > 0 {
+		b, err = parseFile(args[0])
 	} else {
 		b, err = parseString(os.Args[len(os.Args)-1], *isHex)
 	}
 
 	if err != nil {
 		fmt.Println(err)
-	} else {
-		fmt.Println(hex.EncodeToString(b))
+		os.Exit(1)
 	}
+	fmt.Println(hex.EncodeToString(b))
 }
 
 func parseString(s string, isHex bool) ([]byte, error) {
@@ -51,20 +57,32 @@ func parseString(s string, isHex bool) ([]byte, error) {
 	return hash.Sum(nil), nil
 }
 
+func parseFile(name string) ([]byte, error) {
+	_, err := os.Stat(name)
+	if err != nil {
+		return nil, err
+	}
+	f, err := os.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	b := bufio.NewReader(f)
+	hash := sha3.NewLegacyKeccak256()
+	_, err = b.WriteTo(hash)
+	return hash.Sum(nil), err
+}
+
 func parseReader(r io.Reader, isHex bool) ([]byte, error) {
 	info, err := os.Stdin.Stat()
 	if err != nil {
 		return nil, err
 	}
-
 	if info.Mode()&os.ModeCharDevice != 0 || info.Size() <= 0 {
 		return nil, fmt.Errorf("Invalid pipe data.\n\nUsage: echo \"Error(string)\" | keccak256")
 	}
-
 	if isHex {
 		r = hex.NewDecoder(r)
 	}
-
 	reader := bufio.NewReader(r)
 	hash := sha3.NewLegacyKeccak256()
 	for {
