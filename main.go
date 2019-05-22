@@ -31,7 +31,7 @@ func main() {
 	if len(args) > 0 {
 		b, err = parseFile(args[0])
 	} else {
-		b, err = parseString(os.Args[len(os.Args)-1], *isHex)
+		b, err = parseReader(os.Stdin, *isHex)
 	}
 
 	if err != nil {
