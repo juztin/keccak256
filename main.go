@@ -80,7 +80,7 @@ func parseReader(r io.Reader, isHex bool) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if info.Mode()&os.ModeCharDevice != 0 || info.Size() <= 0 {
+	if info.Mode()&os.ModeCharDevice != 0 { // || info.Size() <= 0 {
 		return nil, fmt.Errorf("Invalid pipe data.\n\nUsage: echo \"Error(string)\" | keccak256")
 	}
 	reader := bufio.NewReader(r)
